@@ -1,17 +1,45 @@
-import cosas.*
+import cosas2.*
 object camion {
+    var property bultos = 10
 
     const property pesoTara = 1000
 
-    const carga = [knightRider,bumblebee,ladrillos,residuos,bateriaAntiaerea,arena,contenedor,embalajeSeguridad]
+    const carga = []
+
+    method cargaActual() {
+        return carga
+    }
 
     method pesoTotal(){
         return pesoTara + carga.sum{c => c.peso()}
     }
 
-    method cargar(unaCosa) = carga.add(unaCosa)
+    method cargar(unaCosa){
+        if(carga.contains{unaCosa}){
+            throw new Exception(message = "Este objeto ya se encuentra cargado en el camion" )
+        }
 
-    method descargar(unaCosa) = carga.remove(unaCosa)
+        if(unaCosa.bultosAOcupar() > self.bultos()){
+            throw new Exception(message = "Ya no hay capacidad disponible")
+        }
+
+        carga.add(unaCosa)
+
+        bultos -= unaCosa.bultosAOcupar()
+
+        unaCosa.reaccionarCarga()
+ 
+    }
+
+    method descargar(unaCosa){
+        if(not carga.contains{unaCosa}){
+            throw new Exception(message = "Este objeto no se encuentra en el camion" )
+        }
+
+        carga.remove{unaCosa}
+
+        bultos += unaCosa.bultosAOcupar()
+    }
 
     method todasSusCosasTienenPesoPar() = carga.all{c => c.peso() % 2 == 0}
 
@@ -29,7 +57,7 @@ object camion {
         
         return 
         
-        !self.estaExcedidoDePeso() and self.cosasConPeligrosidadSuperiorA_(peligrosidad) == 0
+        not self.estaExcedidoDePeso() and self.cosasConPeligrosidadSuperiorA_(peligrosidad) == 0
 
     }
 
